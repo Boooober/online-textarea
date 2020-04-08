@@ -1,0 +1,9 @@
+{
+  "packages": [
+    "backend",
+    "client",
+    "socket",
+    "text-diff"
+  ],
+  "version": "independent"
+}
