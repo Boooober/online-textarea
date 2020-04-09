@@ -11,5 +11,7 @@ module.exports = {
     project: 'tsconfig.json',
     tsconfigRootDir: '.'
   },
-  rules: {}
+  rules: {
+    'import/prefer-default-export': 'off'
+  }
 };

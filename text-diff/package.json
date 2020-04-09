@@ -2,6 +2,7 @@
   "name": "text-diff",
   "private": true,
   "version": "1.0.0",
+  "main": "src/index.ts",
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "test": "cross-env NODE_ENV=test jest"
