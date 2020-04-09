@@ -1,4 +1,4 @@
-import { getDiff, DiffOperation } from './index';
+import { DiffOperation, getDiff, getTextDiff } from './index';
 
 describe('Text difference', () => {
   describe('getDiff', () => {
@@ -11,6 +11,14 @@ describe('Text difference', () => {
             [DiffOperation.Removed, ['Hello']],
             [DiffOperation.Added, ['Aloha']],
             [DiffOperation.Equals, ['world']]
+          ]
+        },
+        {
+          before: ['great', 'world'],
+          after: ['Aloha', 'great', 'world'],
+          result: [
+            [DiffOperation.Added, ['Aloha']],
+            [DiffOperation.Equals, ['great', 'world']]
           ]
         },
         {
@@ -49,6 +57,30 @@ describe('Text difference', () => {
       testCases.forEach((
         { before, after, result } //
       ) => expect(getDiff<string | number>(before, after)).toEqual(result));
+    });
+  });
+
+  describe('getTextDiff', () => {
+    it('should calculate difference for two strings', () => {
+      const testCases = [
+        {
+          before: 'The quick brown  fox  ',
+          after: 'The  slow  orange fox',
+          result: [
+            [DiffOperation.Equals, ['The']],
+            [DiffOperation.Removed, [' ', 'quick', ' ', 'brown']],
+            [DiffOperation.Equals, ['  ']],
+            [DiffOperation.Removed, ['fox']],
+            [DiffOperation.Added, ['slow']],
+            [DiffOperation.Equals, ['  ']],
+            [DiffOperation.Added, ['orange', ' ', 'fox']]
+          ]
+        }
+      ];
+
+      testCases.forEach((
+        { before, after, result } //
+      ) => expect(getTextDiff(before, after)).toEqual(result));
     });
   });
 });

@@ -53,5 +53,7 @@ export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>
       ];
 }
 
+const textTokenizer = (text: string): string[] => text.split(/(?<=\s+\b)|(?=\b\s+)/);
+
 export const getTextDiff = (before: string, after: string): Difference<string>[] =>
-  getDiff(before.split(' '), after.split(' '));
+  getDiff(textTokenizer(before), textTokenizer(after));
