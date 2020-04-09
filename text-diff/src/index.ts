@@ -4,7 +4,12 @@ export enum DiffOperation {
   Equals = '='
 }
 
-type Difference<T> = [DiffOperation, T[]];
+export type Difference<T> = [DiffOperation, T[]];
+export interface Patch {
+  from: number;
+  to: number;
+  updates: string;
+}
 
 type Token = string | number;
 export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>[] {
@@ -27,7 +32,7 @@ export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>
     if (matches.length) {
       const [nextOldIndex] = reversIndexedBefore[after[newIndex + 1]] || [];
 
-      if (nextOldIndex && nextOldIndex === oldIndex + 1) {
+      if (nextOldIndex >= 0 && nextOldIndex === oldIndex + 1) {
         // Ok, we have another match
       } else {
         // Ooops, failed to match another word. Or this is the end.
@@ -54,6 +59,47 @@ export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>
 }
 
 const textTokenizer = (text: string): string[] => text.split(/(?<=\s+\b)|(?=\b\s+)/);
-
 export const getTextDiff = (before: string, after: string): Difference<string>[] =>
   getDiff(textTokenizer(before), textTokenizer(after));
+
+export const getPatch = (fullDiff: Difference<string>[]): Patch | null => {
+  const isChanged = ([operation]: Difference<string>): boolean => operation !== DiffOperation.Equals;
+
+  const fromDiff = fullDiff.findIndex(isChanged);
+
+  if (fromDiff === -1) {
+    // The difference is equal
+    return null;
+  }
+  const toDiff = fullDiff.length - fullDiff.slice().reverse().findIndex(isChanged);
+
+  const textSuffix = fullDiff
+    .slice(0, fromDiff)
+    .reduce((result: string, [, tokens]: Difference<string>) => `${result}${tokens.join('')}`, '');
+
+  const { originalText, updatedText } = fullDiff.slice(fromDiff, toDiff).reduce(
+    (result: { originalText: string; updatedText: string }, [operation, tokens]: Difference<string>) => {
+      if ([DiffOperation.Equals, DiffOperation.Added].includes(operation)) {
+        Object.assign(result, { updatedText: `${result.updatedText}${tokens.join('')}` });
+      }
+      if ([DiffOperation.Equals, DiffOperation.Removed].includes(operation)) {
+        Object.assign(result, { originalText: `${result.originalText}${tokens.join('')}` });
+      }
+
+      return result;
+    },
+    { originalText: '', updatedText: '' }
+  );
+
+  const from = textSuffix.length;
+  const to = from + originalText.length;
+
+  return { from, to, updates: updatedText };
+};
+
+export const applyTextPatch = (text: string, { from, to, updates }: Patch): string => {
+  const unchangedPrefix = text.slice(0, from);
+  const unchangedSuffix = text.slice(to, text.length);
+
+  return `${unchangedPrefix}${updates}${unchangedSuffix}`;
+};

@@ -1,4 +1,4 @@
-import { DiffOperation, getDiff, getTextDiff } from './index';
+import { DiffOperation, applyTextPatch, getDiff, getTextDiff, getPatch } from './index';
 
 describe('Text difference', () => {
   describe('getDiff', () => {
@@ -64,6 +64,19 @@ describe('Text difference', () => {
     it('should calculate difference for two strings', () => {
       const testCases = [
         {
+          before: 'The quick brown fox.',
+          after: 'The slow orange fox.',
+          result: [
+            [DiffOperation.Equals, ['The', ' ']],
+            [DiffOperation.Removed, ['quick']],
+            [DiffOperation.Added, ['slow']],
+            [DiffOperation.Equals, [' ']],
+            [DiffOperation.Removed, ['brown']],
+            [DiffOperation.Added, ['orange']],
+            [DiffOperation.Equals, [' ', 'fox.']]
+          ]
+        },
+        {
           before: 'The quick brown  fox  ',
           after: 'The  slow  orange fox',
           result: [
@@ -81,6 +94,51 @@ describe('Text difference', () => {
       testCases.forEach((
         { before, after, result } //
       ) => expect(getTextDiff(before, after)).toEqual(result));
+    });
+  });
+
+  describe('getPatch', () => {
+    const textPrefix = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ';
+    const textSuffix = 'Vivamus vel pretium quam.';
+
+    it("should leave only useful changes and provide it's limits", () => {
+      // Probably we can replace it with tokenization by punctuation.
+      const separator = ' ';
+      const before = `The quick brown fox.${separator}`;
+      const after = `Very slow orange squirrel!${separator}`;
+
+      const fullBefore = `${textPrefix}${before}${textSuffix}`;
+      const fullAfter = `${textPrefix}${after}${textSuffix}`;
+
+      expect(getPatch(getTextDiff(fullBefore, fullAfter))).toEqual({
+        from: textPrefix.length,
+        to: textPrefix.length + before.length,
+        updates: after
+      });
+    });
+
+    it('should not replace the text if it is the same', () => {
+      const before = `${textPrefix}The quick brown fox.${textSuffix}`;
+
+      expect(getPatch(getTextDiff(before, before))).toEqual(null);
+    });
+  });
+
+  describe('applyTextPatch', () => {
+    it('should change text based on the provided patch', () => {
+      const before = 'An apple a day keeps the doctor away';
+      const after = 'The coronavirus every day keeps the people away';
+
+      const textPrefix = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ';
+      const textSuffix = 'Vivamus vel pretium quam.';
+
+      const fullBefore = `${textPrefix}${before}${textSuffix}`;
+      const fullAfter = `${textPrefix}${after}${textSuffix}`;
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const patch = getPatch(getTextDiff(fullBefore, fullAfter))!;
+
+      expect(applyTextPatch(fullBefore, patch)).toBe(fullAfter);
     });
   });
 });
