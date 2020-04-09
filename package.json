@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
+    "lerna": "lerna",
     "lint": "lerna run lint",
     "test": "lerna run test"
   },
