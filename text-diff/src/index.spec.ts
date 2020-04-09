@@ -27,6 +27,15 @@ describe('Text difference', () => {
           ]
         },
         {
+          before: ['Hello', 'world', 'world'],
+          after: ['Hello', 'world', 'amigos'],
+          result: [
+            [DiffOperation.Equals, ['Hello', 'world']],
+            [DiffOperation.Removed, ['world']],
+            [DiffOperation.Added, ['amigos']]
+          ]
+        },
+        {
           before: [1, 2, 3, 4],
           after: [3, 4, 5, 6],
           result: [
@@ -39,7 +48,7 @@ describe('Text difference', () => {
 
       testCases.forEach((
         { before, after, result } //
-      ) => expect(getDiff<unknown>(before, after)).toEqual(result));
+      ) => expect(getDiff<string | number>(before, after)).toEqual(result));
     });
   });
 });
