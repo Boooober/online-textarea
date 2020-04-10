@@ -7,6 +7,7 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const paths = {
+  '@hooks': path.resolve(__dirname, 'src/hooks/'),
   '@components': path.resolve(__dirname, 'src/components/')
 };
 
@@ -78,6 +79,7 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.scss'],
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
     alias: {
+      '@hooks': paths['@hooks'],
       '@components': paths['@components']
     }
   }

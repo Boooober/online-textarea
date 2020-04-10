@@ -1,12 +1,20 @@
 import React, { ChangeEvent, useCallback } from 'react';
+import { getPatch, getTextDiff } from 'text-diff';
+
+import { useSocket } from '@hooks/useSocket';
 
 import styles from './TextInput.module.scss';
 
 export const TextInput = (): JSX.Element => {
-  const handleChange = useCallback(({ target }: ChangeEvent<HTMLTextAreaElement>) => {
-    // eslint-disable-next-line no-console
-    console.log(target.value);
-  }, []);
+  const [text, sendPatch] = useSocket('TEXT');
+
+  const handleChange = useCallback(
+    ({ target }: ChangeEvent<HTMLTextAreaElement>) => {
+      const patch = getPatch(getTextDiff(text, target.value));
+      sendPatch(patch);
+    },
+    [text]
+  );
 
   return (
     <>
@@ -17,6 +25,7 @@ export const TextInput = (): JSX.Element => {
           name="textarea"
           id="textarea"
           onInput={handleChange}
+          value={text}
           placeholder="You can edit shared document with your friend. Or two."
         />
       </label>
