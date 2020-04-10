@@ -6,7 +6,7 @@ import { useSocket } from '@hooks/useSocket';
 import styles from './TextInput.module.scss';
 
 export const TextInput = (): JSX.Element => {
-  const [text, sendPatch] = useSocket('TEXT');
+  const [text = '', sendPatch] = useSocket<string>('TEXT');
 
   const handleChange = useCallback(
     ({ target }: ChangeEvent<HTMLTextAreaElement>) => {
@@ -24,7 +24,7 @@ export const TextInput = (): JSX.Element => {
           className={styles.textarea}
           name="textarea"
           id="textarea"
-          onInput={handleChange}
+          onChange={handleChange}
           value={text}
           placeholder="You can edit shared document with your friend. Or two."
         />

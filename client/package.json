@@ -12,10 +12,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "isomorphic-ws": "^4.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "reset-css": "^5.0.1",
-    "text-diff": "^1.0.0"
+    "text-diff": "^1.0.0",
+    "ws": "^7.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -25,6 +27,7 @@
     "@babel/preset-typescript": "^7.9.0",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "@types/ws": "^7.2.3",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "autoprefixer": "^9.7.6",
