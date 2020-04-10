@@ -1,0 +1,20 @@
+.textarea {
+  display: block;
+  margin: 0.75rem auto 0!important ;
+  width: 100%;
+  max-width: 100%;
+  min-height: 10rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid lightgray;
+  border-radius: 0.35rem;
+  transition: 0.3s border-color;
+
+  &:focus {
+    outline: none;
+    border-color: lightblue;
+  }
+}
+
+.label {
+  color: gray;
+}

@@ -6,6 +6,10 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+const paths = {
+  '@components': path.resolve(__dirname, 'src/components/')
+};
+
 module.exports = {
   mode: NODE_ENV,
 
@@ -46,7 +50,16 @@ module.exports = {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          use: ['css-loader', 'postcss-loader', 'sass-loader']
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                modules: { auto: true }
+              }
+            },
+            'postcss-loader',
+            'sass-loader'
+          ]
         })
       },
       {
@@ -62,7 +75,10 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    modules: [path.resolve('./node_modules'), path.resolve('./src')]
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.scss'],
+    modules: [path.resolve('./node_modules'), path.resolve('./src')],
+    alias: {
+      '@components': paths['@components']
+    }
   }
 };
