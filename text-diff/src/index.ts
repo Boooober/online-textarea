@@ -22,7 +22,7 @@ export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>
 
   const matches: { oldIndex: number; newIndex: number }[] = [];
   for (let newIndex = 0; newIndex < after.length; newIndex += 1) {
-    const [oldIndex] = reversIndexedBefore[after[newIndex]] || [];
+    const [oldIndex] = reversIndexedBefore[after[newIndex]] || [-1];
     // If old index exist, this means that we have a match.
     if (oldIndex >= 0) {
       matches.push({ oldIndex, newIndex });
@@ -30,7 +30,7 @@ export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>
 
     // There are already few matches
     if (matches.length) {
-      const [nextOldIndex] = reversIndexedBefore[after[newIndex + 1]] || [];
+      const [nextOldIndex] = reversIndexedBefore[after[newIndex + 1]] || [-1];
 
       if (nextOldIndex >= 0 && nextOldIndex === oldIndex + 1) {
         // Ok, we have another match

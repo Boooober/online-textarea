@@ -5,6 +5,16 @@ describe('Text difference', () => {
     it('should calculate difference for two sets of tokens', () => {
       const testCases = [
         {
+          before: [],
+          after: ['Hello', 'world'],
+          result: [[DiffOperation.Added, ['Hello', 'world']]]
+        },
+        {
+          before: ['Hello', 'world'],
+          after: [],
+          result: [[DiffOperation.Removed, ['Hello', 'world']]]
+        },
+        {
           before: ['Hello', 'world'],
           after: ['Aloha', 'world'],
           result: [

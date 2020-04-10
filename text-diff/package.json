@@ -2,14 +2,22 @@
   "name": "text-diff",
   "private": true,
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "./build",
+  "types": "./build",
+  "author": "Mykyta Slobodian",
+  "license": "ISC",
   "scripts": {
+    "build": "babel src/index.ts --out-file build/index.js",
+    "types": "tsc --project tsconfig.types.json --declarationDir build",
+    "postinstall": "shx rm -rf build && npm run build && npm run types",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "cross-env NODE_ENV=test jest"
   },
-  "author": "Mykyta Slobodian",
-  "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
     "@types/jest": "^25.2.1",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
@@ -20,6 +28,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-prettier": "^3.1.2",
     "jest": "^25.3.0",
+    "shx": "^0.3.2",
     "ts-jest": "^25.3.1"
   }
 }
