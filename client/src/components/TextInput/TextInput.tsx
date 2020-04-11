@@ -1,7 +1,8 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { applyTextPatch, getPatch, getTextDiff, Patch } from 'text-diff';
+import { applyTextPatch, Patch } from 'text-diff';
 
 import { useSocket } from '@hooks/useSocket';
+import { useTextDiffWorker } from '@hooks/useTextDiffWorker';
 
 import styles from './TextInput.module.scss';
 
@@ -11,18 +12,25 @@ export enum TextEvent {
 
 export const TextInput = (): JSX.Element => {
   const [text, setText] = useState('');
-  const [patch, sendPatch] = useSocket<Patch>(TextEvent.Update);
+  const [socketPatch, sendPatch] = useSocket<Patch>(TextEvent.Update);
+  const [workerPatch, calculatePatch] = useTextDiffWorker();
 
   useEffect(() => {
-    if (patch) {
-      setText(applyTextPatch(text, patch));
+    if (socketPatch) {
+      setText(applyTextPatch(text, socketPatch));
     }
-  }, [patch]);
+  }, [socketPatch]);
+
+  useEffect(() => {
+    if (workerPatch) {
+      sendPatch(workerPatch);
+    }
+  }, [workerPatch]);
 
   const handleChange = useCallback(
     ({ target }: ChangeEvent<HTMLTextAreaElement>) => {
-      const newPatch = getPatch(getTextDiff(text, target.value));
-      sendPatch(newPatch);
+      setText(target.value);
+      calculatePatch(text, target.value);
     },
     [text]
   );
