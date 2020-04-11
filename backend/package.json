@@ -13,7 +13,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "isomorphic-ws": "^4.0.1",
-    "socket": "^1.0.0",
+    "socket": "^1.1.0",
     "text-diff": "^1.0.0",
     "uuid": "^7.0.3",
     "ws": "^7.2.3"

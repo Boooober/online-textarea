@@ -4,7 +4,8 @@ declare module 'ws' {
   interface ResponseAPI {
     ws: WebSocket;
     sendJSON: (data: unknown) => void;
-    sendAllJSON: (data: unknown) => void;
+    sendJSONToAll: (data: unknown) => void;
+    sendJSONToOther: (data: unknown) => void;
   }
 
   interface SocketAction<T = unknown> {
@@ -18,6 +19,9 @@ declare module 'ws' {
   }
 
   interface Server {
+    sendJSON(sessionId: string, data: unknown): void;
+    sendJSONToAll(data: unknown): void;
+    sendJSONToOther(excludeIds: string | string[], data: unknown): void;
     use<T>(action: string, handler: SocketHandler<T>): void;
   }
 }

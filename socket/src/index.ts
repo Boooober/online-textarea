@@ -4,7 +4,8 @@ import WebSocket from 'isomorphic-ws';
 export interface ResponseAPI {
   ws: WebSocket;
   sendJSON: (data: unknown) => void;
-  sendAllJSON: (data: unknown) => void;
+  sendJSONToAll: (data: unknown) => void;
+  sendJSONToOther: (data: unknown) => void;
 }
 
 interface SocketAction<T = unknown> {
@@ -20,12 +21,21 @@ interface SocketHandler<T> {
 export class WebSocketServer extends WebSocket.Server {
   private readonly sessions = new Map<string, WebSocket>();
 
-  send = (sessionId: string, data: unknown): void => {
+  sendJSON = (sessionId: string, data: unknown): void => {
     this.sessions.get(sessionId)?.send(JSON.stringify(data));
   };
 
-  sendAll = (data: unknown): void => {
-    this.sessions.forEach((_: WebSocket, sessionId: string) => this.send(sessionId, data));
+  sendJSONToAll = (data: unknown): void => {
+    this.sessions.forEach((_: WebSocket, sessionId: string) => this.sendJSON(sessionId, data));
+  };
+
+  sendJSONToOther = (excludeSessionId: string | string[], data: unknown): void => {
+    const excludeIds = Array.isArray(excludeSessionId) ? excludeSessionId : [excludeSessionId];
+    this.sessions.forEach((_: WebSocket, sessionId: string) => {
+      if (!excludeIds.includes(sessionId)) {
+        this.sendJSON(sessionId, data);
+      }
+    });
   };
 
   use<T>(type: string, handler: SocketHandler<T>): void {
@@ -35,7 +45,12 @@ export class WebSocketServer extends WebSocket.Server {
       // eslint-disable-next-line no-console
       console.info(`New connection established:`, sessionId);
 
-      const responseAPI = { ws, sendJSON: this.send.bind(sessionId), sendAllJSON: this.sendAll } as ResponseAPI;
+      const responseAPI = {
+        ws,
+        sendJSON: this.sendJSON.bind(null, sessionId),
+        sendJSONToAll: this.sendJSONToAll,
+        sendJSONToOther: this.sendJSONToOther.bind(null, sessionId)
+      } as ResponseAPI;
 
       handler.hydration?.(responseAPI);
 

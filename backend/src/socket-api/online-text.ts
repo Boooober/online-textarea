@@ -1,6 +1,5 @@
-import { SocketHandler, ResponseAPI } from 'socket';
+import { SocketHandler, ResponseAPI, SocketAction } from 'socket';
 import { applyTextPatch, Patch } from 'text-diff';
-import { SocketAction } from 'socket/src/types';
 
 export enum TextEvent {
   Update = 'TEXT.UPDATE'
@@ -10,13 +9,13 @@ export const onlineText = ((): SocketHandler<Patch> => {
   let text = '';
 
   return Object.assign(
-    (action: SocketAction<Patch>, { sendAllJSON }: ResponseAPI): void => {
+    (action: SocketAction<Patch>, { sendJSONToOther }: ResponseAPI): void => {
       text = applyTextPatch(text, action.payload);
-      sendAllJSON(action);
+      sendJSONToOther(action);
     },
     {
-      hydration: ({ sendAllJSON }: ResponseAPI): void => {
-        sendAllJSON({
+      hydration: ({ sendJSON }: ResponseAPI): void => {
+        sendJSON({
           type: TextEvent.Update,
           payload: {
             from: 0,
