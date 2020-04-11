@@ -1,26 +1,29 @@
+import { SocketHandler, ResponseAPI } from 'socket';
 import { applyTextPatch, Patch } from 'text-diff';
+import { SocketAction } from 'socket/src/types';
 
-export interface WSResponse {
-  send: (data: unknown) => void;
-  sendAll: (data: unknown) => void;
+export enum TextEvent {
+  Update = 'TEXT.UPDATE'
 }
 
-export interface SocketHandler {
-  (action: { type: string; payload: any }, response: WSResponse): void;
-  hydration(response: WSResponse): void;
-}
-
-export const onlineText = ((): SocketHandler => {
-  let text: string = '';
+export const onlineText = ((): SocketHandler<Patch> => {
+  let text = '';
 
   return Object.assign(
-    (action: { type: string; payload: Patch }, { sendAll }: WSResponse): void => {
+    (action: SocketAction<Patch>, { sendAllJSON }: ResponseAPI): void => {
       text = applyTextPatch(text, action.payload);
-      sendAll({ type: 'TEXT', payload: text });
+      sendAllJSON(action);
     },
     {
-      hydration: ({ sendAll }: WSResponse): void => {
-        sendAll({ type: 'TEXT', payload: text });
+      hydration: ({ sendAllJSON }: ResponseAPI): void => {
+        sendAllJSON({
+          type: TextEvent.Update,
+          payload: {
+            from: 0,
+            to: Number.MAX_SAFE_INTEGER,
+            updates: text
+          } as Patch
+        });
       }
     }
   );

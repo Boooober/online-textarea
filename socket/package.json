@@ -2,19 +2,38 @@
   "name": "socket",
   "private": true,
   "version": "1.0.0",
+  "author": "Mykyta Slobodian",
+  "license": "ISC",
+  "browser": "build/browser.js",
+  "main": "build/index.js",
+  "types": "build/types.d.ts",
   "scripts": {
+    "build": "babel src --out-dir build --extensions \".ts\" --ignore \"src/entity/*\",\"src/**/*.d.ts\"",
+    "types": "shx cp src/types.d.ts build",
+    "postinstall": "shx rm -rf build && npm run build && npm run types",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Mykyta Slobodian",
-  "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/uuid": "^7.0.2",
+    "@types/ws": "^7.2.3",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-typescript": "^7.2.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-prettier": "^3.1.2"
+    "eslint-plugin-prettier": "^3.1.2",
+    "shx": "^0.3.2"
+  },
+  "dependencies": {
+    "isomorphic-ws": "^4.0.1",
+    "uuid": "^7.0.3",
+    "ws": "^7.2.3"
   }
 }

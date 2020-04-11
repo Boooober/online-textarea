@@ -1,8 +1,8 @@
 import http from 'http';
-import WebSocket from 'isomorphic-ws';
+import WebSocket from 'socket';
 import express, { Express } from 'express';
 
-import { socketApi } from './socket-api';
+import { onlineText, TextEvent } from './socket-api/online-text';
 
 export const setupServer = (): Express => {
   const port = 9002;
@@ -13,7 +13,7 @@ export const setupServer = (): Express => {
   server.use(express.urlencoded({ extended: true }));
 
   const wss = new WebSocket.Server({ server: http.createServer(server), port: wsPort });
-  socketApi(wss);
+  wss.use(TextEvent.Update, onlineText);
 
   server.listen(port, () => {
     // eslint-disable-next-line no-console

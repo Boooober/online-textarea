@@ -1,17 +1,28 @@
-import React, { ChangeEvent, useCallback } from 'react';
-import { getPatch, getTextDiff } from 'text-diff';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { applyTextPatch, getPatch, getTextDiff, Patch } from 'text-diff';
 
 import { useSocket } from '@hooks/useSocket';
 
 import styles from './TextInput.module.scss';
 
+export enum TextEvent {
+  Update = 'TEXT.UPDATE'
+}
+
 export const TextInput = (): JSX.Element => {
-  const [text = '', sendPatch] = useSocket<string>('TEXT');
+  const [text, setText] = useState('');
+  const [patch, sendPatch] = useSocket<Patch>(TextEvent.Update);
+
+  useEffect(() => {
+    if (patch) {
+      setText(applyTextPatch(text, patch));
+    }
+  }, [patch]);
 
   const handleChange = useCallback(
     ({ target }: ChangeEvent<HTMLTextAreaElement>) => {
-      const patch = getPatch(getTextDiff(text, target.value));
-      sendPatch(patch);
+      const newPatch = getPatch(getTextDiff(text, target.value));
+      sendPatch(newPatch);
     },
     [text]
   );

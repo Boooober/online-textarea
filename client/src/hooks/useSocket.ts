@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import WebSocket, { MessageEvent } from 'isomorphic-ws';
+import WebSocket, { MessageEvent } from 'socket';
 
 const ws = new WebSocket('ws://localhost:9003');
 

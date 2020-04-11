@@ -1,0 +1,5 @@
+{
+  "presets": ["@babel/env", "@babel/preset-typescript"],
+  "plugins": ["@babel/proposal-class-properties"],
+  "sourceMaps": "both"
+}
