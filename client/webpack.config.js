@@ -1,4 +1,5 @@
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -28,6 +29,7 @@ module.exports = {
   },
 
   plugins: [
+    new Dotenv({ defaults: true }),
     new CleanWebpackPlugin(),
     new ExtractTextPlugin('[hash].css'),
     new HtmlWebpackPlugin({
@@ -82,5 +84,13 @@ module.exports = {
       '@hooks': paths['@hooks'],
       '@components': paths['@components']
     }
+  },
+
+  devServer: {
+    open: true,
+    port: 3000,
+    host: '0.0.0.0',
+    useLocalIp: true,
+    disableHostCheck: true
   }
 };

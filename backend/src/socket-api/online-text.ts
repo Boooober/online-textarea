@@ -10,6 +10,8 @@ export const onlineText = ((): SocketHandler<Patch> => {
 
   return Object.assign(
     (action: SocketAction<Patch>, { sendJSONToOther }: ResponseAPI): void => {
+      // eslint-disable-next-line no-console
+      console.log('Apply patch:', action.payload);
       text = applyTextPatch(text, action.payload);
       sendJSONToOther(action);
     },

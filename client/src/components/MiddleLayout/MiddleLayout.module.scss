@@ -5,6 +5,10 @@
 }
 
 .layout {
+  height: 100%;
+}
+
+.content {
   display: flex;
   flex-direction: column;
   max-width: 600px;
@@ -13,6 +17,5 @@
   justify-content: center;
   margin: 0 auto;
 
-  overflow: auto;
   padding: 2rem 1rem;
 }

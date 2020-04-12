@@ -1,7 +1,7 @@
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfig: process.env.NODE_ENV === 'test' ? 'tsconfig.test.json' : 'tsconfig.json'
+      tsConfig: 'tsconfig.test.json'
     }
   },
   roots: ['<rootDir>/src'],

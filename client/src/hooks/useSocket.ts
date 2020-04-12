@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import WebSocket, { MessageEvent } from 'socket';
 
-const ws = new WebSocket('ws://localhost:9003');
+const ws = new WebSocket(process.env.SOCKET_SERVER as string);
 
 const createSelector = <T>(type: string, next: (payload: T) => void) => (message: MessageEvent): void => {
   const action = JSON.parse(message.data as string);

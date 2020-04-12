@@ -53,7 +53,7 @@ export const createUseTextDiffWorker = (): (() => UseTextDiffWorkerAPI) => {
         performance.mark('patch_calculating_end');
         performance.measure('patch_calculating', 'patch_calculating_start', 'patch_calculating_end');
         // eslint-disable-next-line no-console
-        console.log('Patch generated:', performance.getEntriesByName('patch_calculating', 'measure')[0]);
+        console.log('Patch generated:', data, performance.getEntriesByName('patch_calculating', 'measure')[0]);
         performance.clearMarks();
         performance.clearMeasures();
 
