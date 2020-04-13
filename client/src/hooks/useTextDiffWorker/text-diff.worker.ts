@@ -1,4 +1,5 @@
 import { getPatch, getTextDiff } from 'text-diff';
+import { readTextFromBuffer, writeTextToBuffer } from '@hooks/useTextDiffWorker/helpers';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
@@ -6,6 +7,14 @@ import { getPatch, getTextDiff } from 'text-diff';
 const ctx: Worker = self as any;
 
 // Respond to message from parent thread
-ctx.addEventListener('message', ({ data: { before, after } }: MessageEvent) => {
-  ctx.postMessage(getPatch(getTextDiff(before, after)));
+ctx.addEventListener('message', ({ data: { beforeBuffer, afterBuffer } }: MessageEvent) => {
+  const before = readTextFromBuffer(beforeBuffer);
+  const after = readTextFromBuffer(afterBuffer);
+
+  const patch = getPatch(getTextDiff(before, after));
+  if (patch) {
+    const { updates, ...indices } = patch;
+    const updatesBuffer = writeTextToBuffer(updates);
+    ctx.postMessage({ updatesBuffer, ...indices }, [updatesBuffer]);
+  }
 });

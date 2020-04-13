@@ -3,6 +3,7 @@ import { Patch } from 'text-diff';
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import TextDiffWorker from 'worker-loader!./text-diff.worker';
+import { readTextFromBuffer, writeTextToBuffer } from './helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function debounceWithParamMemo<T extends (...args: any[]) => any>(fn: T, memoParamsIndex: number[], wait: number): T {
@@ -40,7 +41,10 @@ export const createUseTextDiffWorker = (): (() => UseTextDiffWorkerAPI) => {
       debounceWithParamMemo(
         (before: string, after: string) => {
           performance.mark('patch_calculating_start');
-          worker.postMessage({ before, after });
+          const beforeBuffer = writeTextToBuffer(before);
+          const afterBuffer = writeTextToBuffer(after);
+
+          worker.postMessage({ beforeBuffer, afterBuffer }, [beforeBuffer, afterBuffer]);
         },
         [0],
         400
@@ -49,15 +53,16 @@ export const createUseTextDiffWorker = (): (() => UseTextDiffWorkerAPI) => {
     );
 
     useEffect(() => {
-      const handler = ({ data }: MessageEvent): void => {
+      const handler = ({ data: { updatesBuffer, ...indices } }: MessageEvent): void => {
+        const newPatch: Patch = { ...indices, updates: readTextFromBuffer(updatesBuffer) };
+        setPatch(newPatch);
+
         performance.mark('patch_calculating_end');
         performance.measure('patch_calculating', 'patch_calculating_start', 'patch_calculating_end');
         // eslint-disable-next-line no-console
-        console.log('Patch generated:', data, performance.getEntriesByName('patch_calculating', 'measure')[0]);
+        console.log('Patch generated:', newPatch, performance.getEntriesByName('patch_calculating', 'measure')[0]);
         performance.clearMarks();
         performance.clearMeasures();
-
-        setPatch(data);
       };
       worker.addEventListener('message', handler);
       return (): void => worker.removeEventListener('message', handler);
