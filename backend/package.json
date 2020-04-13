@@ -10,12 +10,14 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
+    "debounce-promise": "^3.1.2",
     "isomorphic-ws": "^4.0.1",
     "socket": "^1.1.0",
     "text-diff": "^1.0.1",
     "ws": "^7.2.3"
   },
   "devDependencies": {
+    "@types/debounce-promise": "^3.1.1",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "eslint": "^6.8.0",
