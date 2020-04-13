@@ -31,10 +31,8 @@
     "shx": "^0.3.2"
   },
   "dependencies": {
-    "uuid": "^7.0.3"
-  },
-  "peerDependencies": {
     "isomorphic-ws": "^4.0.1",
+    "uuid": "^7.0.3",
     "ws": "^7.2.3"
   }
 }

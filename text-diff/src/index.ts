@@ -20,45 +20,50 @@ export function getDiff<T extends Token>(before: T[], after: T[]): Difference<T>
     return Object.assign(result, { [token]: indices });
   }, {} as { [key in T]: number[] });
 
-  const matches: { oldIndex: number; newIndex: number }[] = [];
+  const overlapMatrix: Record<string, number> = {};
+  let maxOverlapLength = 0;
+  let oldIndexStart = 0;
+  let newIndexStart = 0;
+
   for (let newIndex = 0; newIndex < after.length; newIndex += 1) {
-    const [oldIndex] = reversIndexedBefore[after[newIndex]] || [-1];
-    // If old index exist, this means that we have a match.
-    if (oldIndex >= 0) {
-      matches.push({ oldIndex, newIndex });
-    }
+    const matches = reversIndexedBefore[after[newIndex]] || [];
+    // Here we assume that we found the match between the new tokens subsequence and the old one.
+    for (let matchIndex = 0; matchIndex < matches.length; matchIndex += 1) {
+      const oldIndex = matches[matchIndex];
+      // Every iteration means that we have matched token from old sequence with the token from the new sequence.
+      // We need to couple two token's indices from this sequences and start or continue match series.
+      // Matching series will be represented with a length that takes in account previous indices couple.
+      overlapMatrix[`${oldIndex}:${newIndex}`] = (overlapMatrix[`${oldIndex - 1}:${newIndex - 1}`] || 0) + 1;
+      const overlapLength = overlapMatrix[`${oldIndex}:${newIndex}`];
 
-    // There are already few matches
-    if (matches.length) {
-      const [nextOldIndex] = reversIndexedBefore[after[newIndex + 1]] || [-1];
-
-      if (nextOldIndex >= 0 && nextOldIndex === oldIndex + 1) {
-        // Ok, we have another match
-      } else {
-        // Ooops, failed to match another word. Or this is the end.
-        const matchLength = matches.length;
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const { oldIndex: firstOldIndex, newIndex: fistNewIndex } = matches.shift()!;
-
-        return [
-          ...getDiff(before.slice(0, firstOldIndex), after.slice(0, fistNewIndex)),
-          [DiffOperation.Equals, after.slice(fistNewIndex, fistNewIndex + matchLength)],
-          ...getDiff(before.slice(firstOldIndex + matchLength), after.slice(fistNewIndex + matchLength))
-        ];
+      if (overlapLength > maxOverlapLength) {
+        // This is the biggest subsequence ever seen so far.
+        // Need to remember were it starts in every sequence.
+        maxOverlapLength = overlapLength;
+        oldIndexStart = oldIndex - overlapLength + 1;
+        newIndexStart = newIndex - overlapLength + 1;
       }
     }
-    // Keep searching for matches
   }
 
-  return matches.length
-    ? [[DiffOperation.Equals, after]]
-    : [
-        ...(before.length ? [[DiffOperation.Removed, before] as Difference<T>] : []),
-        ...(after.length ? [[DiffOperation.Added, after] as Difference<T>] : [])
-      ];
+  if (!maxOverlapLength) {
+    // Nothing overlapped :(
+    return [
+      ...(before.length ? [[DiffOperation.Removed, before] as Difference<T>] : []),
+      ...(after.length ? [[DiffOperation.Added, after] as Difference<T>] : [])
+    ];
+  }
+
+  // Something overlapped.
+  // Need to check recursively subsequences before and after this overlap
+  return [
+    ...getDiff(before.slice(0, oldIndexStart), after.slice(0, newIndexStart)),
+    [DiffOperation.Equals, after.slice(newIndexStart, newIndexStart + maxOverlapLength)],
+    ...getDiff(before.slice(oldIndexStart + maxOverlapLength), after.slice(newIndexStart + maxOverlapLength))
+  ];
 }
 
-const textTokenizer = (text: string): string[] => text.split(/(?<=\s+\b)|(?=\b\s+)/);
+export const textTokenizer = (text: string): string[] => text.split(/(?<=\s+\b)|(?=\b\s+)/);
 export const getTextDiff = (before: string, after: string): Difference<string>[] =>
   getDiff(textTokenizer(before), textTokenizer(after));
 

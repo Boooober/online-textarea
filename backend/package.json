@@ -12,7 +12,7 @@
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
     "socket": "^1.1.0",
-    "text-diff": "^1.0.0",
+    "text-diff": "^1.0.1",
     "ws": "^7.2.3"
   },
   "devDependencies": {

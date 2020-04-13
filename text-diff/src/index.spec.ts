@@ -1,4 +1,4 @@
-import { DiffOperation, applyTextPatch, getDiff, getTextDiff, getPatch } from './index';
+import { DiffOperation, applyTextPatch, getDiff, getTextDiff, getPatch, textTokenizer } from './index';
 
 describe('Text difference', () => {
   describe('getDiff', () => {
@@ -68,6 +68,22 @@ describe('Text difference', () => {
         { before, after, result } //
       ) => expect(getDiff<string | number>(before, after)).toEqual(result));
     });
+
+    it('should calculate difference for huge sequences', () => {
+      const createCharsArray = (count: number): string[] =>
+        Array.from({ length: count }, (): string => Math.random().toString(36).substring(2, 15));
+
+      const before = createCharsArray(1e6);
+      const after = before.slice();
+      const additions = createCharsArray(300);
+      after.splice(before.length / 2, 0, ...additions);
+
+      expect(getDiff(before, after)).toEqual([
+        [DiffOperation.Equals, after.slice(0, before.length / 2)],
+        [DiffOperation.Added, additions],
+        [DiffOperation.Equals, after.slice(-before.length / 2)]
+      ]);
+    });
   });
 
   describe('getTextDiff', () => {
@@ -104,6 +120,39 @@ describe('Text difference', () => {
       testCases.forEach((
         { before, after, result } //
       ) => expect(getTextDiff(before, after)).toEqual(result));
+    });
+
+    it('should calculate difference for huge texts with very often same element (space)', () => {
+      const createCharsArray = (count: number): string[] =>
+        Array.from({ length: count }, (): string => Math.random().toString(36).substring(2, 15));
+
+      const beforeChars = createCharsArray(2000);
+      const afterChars = beforeChars.slice();
+      const additions = createCharsArray(300);
+      afterChars.splice(afterChars.length / 2, 0, ...additions);
+
+      const before = beforeChars.join(' ');
+      const after = afterChars.join(' ');
+
+      expect(getTextDiff(before, after)).toEqual([
+        [
+          DiffOperation.Equals,
+          [
+            ...textTokenizer(afterChars.slice(0, beforeChars.length / 2).join(' ')),
+            // Extra space from the additional part
+            ' '
+          ]
+        ],
+        [
+          DiffOperation.Added,
+          [
+            ...textTokenizer(additions.join(' ')),
+            // Extra space from the final part
+            ' '
+          ]
+        ],
+        [DiffOperation.Equals, textTokenizer(afterChars.slice(-beforeChars.length / 2).join(' '))]
+      ]);
     });
   });
 
