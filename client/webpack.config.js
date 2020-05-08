@@ -1,7 +1,7 @@
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
@@ -31,7 +31,7 @@ module.exports = {
   plugins: [
     new Dotenv({ defaults: true }),
     new CleanWebpackPlugin(),
-    new ExtractTextPlugin('[hash].css'),
+    new MiniCssExtractPlugin('[hash].css'),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './public/index.html')
     }),
@@ -50,20 +50,18 @@ module.exports = {
     rules: [
       { test: /\.(woff|woff2|ttf|eot)/, loader: 'file-loader' },
       {
-        test: /\.scss$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                modules: { auto: true }
-              }
-            },
-            'postcss-loader',
-            'sass-loader'
-          ]
-        })
+        test: /\.s?css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              modules: { auto: true }
+            }
+          },
+          'postcss-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.(ts|tsx)$/,
