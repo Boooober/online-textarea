@@ -33,6 +33,6 @@
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
     "uuid": "^8.0.0",
-    "ws": "^7.2.5"
+    "ws": "^7.4.6"
   }
 }
